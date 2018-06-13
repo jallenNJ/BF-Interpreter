@@ -11,11 +11,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	Interpreter bfInterp(argv[1]);
-
-
-	//string a_buff;
-//	getline(sourceFile, a_buff);
-	//cout << a_buff;
+	bfInterp.interpret();
 
 
 	return 0;
