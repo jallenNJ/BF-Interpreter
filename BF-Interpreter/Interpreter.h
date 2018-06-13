@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+#include <vector>
 
 
 using namespace std;
@@ -23,9 +23,13 @@ public:
 		pgmMem = new char[memSize];
 
 		pgmPtr = pgmMem;
-		for (int i = 0; i < memSize; i++) {
+		for (unsigned int i = 0; i < memSize; i++) {
 			pgmMem[i] = 0;
 		}
+
+		inLoop = false;
+		doLoop = false;
+
 	}
 
 	~Interpreter() {
@@ -43,14 +47,15 @@ private:
 
 	void expandMemory(int);
 	
-	void processOperator(char);
+	bool processOperator(char);
 
 
 	//Debug function to output the entire contents of memory in a nicer view than the debugger
 	void debugMemOutput() {
 
+		cout << "\n";
 		//DEBUG
-		for (int i = 0; i < memSize; i++) {
+		for (unsigned int i = 0; i < memSize; i++) {
 			cout << i<<": " << (int)pgmMem[i] << "\t";
 			if (i % 5 == 0 && i != 0) {
 				cout << endl;
@@ -62,7 +67,10 @@ private:
 	ifstream sourceFile;
 	char* pgmMem;
 	char* pgmPtr;
-	int memSize;
+	unsigned int memSize;
+	bool inLoop;
+	bool doLoop;
+
 };
 
 #endif // !INTERPRETER_H
