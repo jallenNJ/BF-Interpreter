@@ -35,8 +35,12 @@ void Interpreter::interpret() {
 					processOperator(loopOps[j]);
 				}
 			}
+			if (!inLoop) { //If loop ended, clear opps
+				loopOps.clear();
+			}
 			
 		}
+
 
 	}
 
