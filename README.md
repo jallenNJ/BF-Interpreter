@@ -5,7 +5,7 @@ The BF language was created in 1993 by Urban Müller and only has eight valid op
 The file extensions for soruce files are: .b and .bf
 However, this interperter will attempt to parse any file its pointed to, regardless of file extension.
 
-###Syntax for the language
+### Syntax for the language
 White space is ignored, and non-valid characters are ignored by the interpreter.
 Comments are made by any non-reserved character
 
@@ -26,10 +26,10 @@ Comments are made by any non-reserved character
 The current build of this interperter takes in a bf language file as a commandline argument, and does a two pass interpretation of it. Where pass I discards all non-valid operators, and assocaites the square brackets to each other. Pass II then executes the program in run time. 
 
 
-###Techinical Information
+### Techinical Information
 This interpreter uses signed char's for the data type of each cell. This means the size of the cell is equal to one byte on the host machine, which in the vast majority of cases will be 8 bits. Therefore the valid values a cell can hold is \[-128, 127] and these values can be wrapped around through overflows without any runtime error. 
 
-###Features of this Interpreter
+### Features of this Interpreter
 The program's memory can expand indefinitely* in both directions from the "zero" cell. Which removes about the only common runtime error this language will encounter. 
 
 * indefinitely in this context means the only limiation will be down on the physical machine that is running the interpreter. There is no software limitation on the size of program memory. 
