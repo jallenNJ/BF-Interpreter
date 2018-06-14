@@ -10,6 +10,7 @@ White space is ignored, and non-valid characters are ignored by the interpreter.
 Comments are made by any non-reserved character
 
 |Operator | MEANING |
+| :------------: | ------------ |
 |>| Increment pointer|
 |<| Decrement pointer|
 |+| Increment value at pointer|
@@ -18,6 +19,7 @@ Comments are made by any non-reserved character
 |,| Recieve one byte of input from STDIN and store at pointer|
 |\[|Begin a loop if value at pointer is non-zero|
 |]| Jump to assoicated\[ if value at pointer i non-zero|
+
 
 ## This Interpreter
 ###General Information
