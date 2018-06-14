@@ -22,10 +22,8 @@ void Interpreter::interpret() {
 //This function handles implementing finding out if a char is an operator, and if it is
 // implementing its correct function
 
-//RETURNS true if input was a valid operator
-//		false if the operator was not valid
-bool Interpreter::processOperator(char op) {
-	bool validOperator = true;
+
+void Interpreter::processOperator(char op) {
 	switch (op) {
 	case '<':
 		if (pgmPtr <= pgmMem) { //If pointer moved further left than the start of the memory
@@ -92,17 +90,16 @@ bool Interpreter::processOperator(char op) {
 		else { 
 			//START LOOP
 			pgmCounter = loopReturnAddress.top();
-			//loopReturnAddress.pop();
+
 		}
 		break;
 	default:// Invalid symbol is ignored
-		validOperator = false;
+		cerr << "Invalid symbol in process operator, will be ignored" << endl;
 		break;
 
 	}
 
-	//Return if valid operator was found
-	return validOperator;
+
 
 }
 
@@ -154,16 +151,22 @@ void Interpreter::openFile(string fileName) {
 
 }
 
+//This function acts as ====PASS I==== for the interpreter
+//It takes the input, and loads it in as the instructions vector, it also
+// finds the bounds of loops, and pushes them into appropriate data structures.
 void Interpreter::loadInInstructions() {
-	//int characterCounter; USE SIZE OF INSTRUCTION VECTOR
-	stack<int> loopOpenLoc;
-	while (!sourceFile.eof()) {
+
+	stack<int> loopOpenLoc; //Stack to store when loops began
+
+	while (!sourceFile.eof()) { //Loop until EOF
+		//Get the current line of the file
 		string line = "";
 		getline(sourceFile, line);
 
 		for (unsigned int i = 0; i < line.length(); i++) {
 			bool addToInstructions = true;
 			switch (line[i]) {
+				//If valid non loop symbol, just add to list
 				case '<':
 				case '>':
 				case '+':
@@ -172,31 +175,33 @@ void Interpreter::loadInInstructions() {
 				case '.':
 					//pass;
 					break;
-				case '[':
+				case '[': //Start of loop, add it to the local stack
 					loopOpenLoc.push(instructions.size());
 					break;
-				case ']':
-					if (loopOpenLoc.size() == 0) {
+				case ']': //End of a loop found, add its assoicated opening to the map
+					
+					if (loopOpenLoc.size() == 0) { //If no opening loop, syntax error in file
 						cerr << "Syntax error, loop closed without being opened, ignoring char" << endl;
 						addToInstructions = false;
 						break;
 					}
-					//int startingLoopLoc = loopOpenLoc.top();	
+					//Add the starting location as key, and the location of the end bracket as the value
 					loopBounds[loopOpenLoc.top()] = instructions.size();
-					loopOpenLoc.pop();
+					loopOpenLoc.pop(); //Remove from the map
 
 					break;
-				default:
+				default: //Invalid character in file, discard
 					addToInstructions = false;
 					break;
 			}
 
-			if (addToInstructions) {
+			if (addToInstructions) { //If valid symbol, add to file
 				instructions.push_back(line[i]);
 			}
 		}
 	}
-	if (loopOpenLoc.size() != 0) {
+
+	if (loopOpenLoc.size() != 0) { //If any remain in stack, syntax error as loop wasn't closed
 		cerr << "Syntanx Error: Loop opened and not closed" << endl;
 		exit(-4);
 	}
