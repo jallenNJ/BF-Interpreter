@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <stack>
 
 
@@ -28,12 +29,13 @@ public:
 			pgmMem[i] = 0;
 		}
 
-		skipLoop = false;
-		openBracketCounter = 0;
-		closeBracketCounter = 0;
+	//	skipLoop = false;
+	//	openBracketCounter = 0;
+	//	closeBracketCounter = 0;
 //		inLoop = false;
 //		doLoop = false;
 
+		loadInInstructions();
 	}
 
 	~Interpreter() {
@@ -48,6 +50,8 @@ public:
 
 private: 
 	void openFile(string);
+
+	void loadInInstructions();
 
 	void expandMemory(int);
 	
@@ -72,12 +76,11 @@ private:
 	char* pgmMem;
 	char* pgmPtr;
 	unsigned int memSize;
-	stack<bool> inLoop;
-	stack<bool> doLoop;
-	bool skipLoop;
-	int openBracketCounter;
-	int closeBracketCounter;
-	//stack<vector<char>*> allLoops;
+
+
+	vector<char> instructions;
+	stack<int> loopReturnAddress;
+	map<int, int> loopBounds;
 
 };
 

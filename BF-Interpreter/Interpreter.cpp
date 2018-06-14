@@ -7,7 +7,7 @@ using namespace std;
 
 // Entry point to the Interpreter, this function reads the entire file
 //	and processes each character by itself.
-void Interpreter::interpret() {
+/*void Interpreter::interpret() {
 
 	//vector<char> loopOps; //Stores all operations in the current loop
 	vector<vector<char>>allLoops;
@@ -77,14 +77,14 @@ void Interpreter::interpret() {
 	debugMemOutput();
 
 }
-
+*/
 
 //This function handles implementing finding out if a char is an operator, and if it is
 // implementing its correct function
 
 //RETURNS true if input was a valid operator
 //		false if the operator was not valid
-bool Interpreter::processOperator(char op) {
+/*bool Interpreter::processOperator(char op) {
 	bool validOperator = true;
 	switch (op) {
 	case '<':
@@ -174,7 +174,7 @@ bool Interpreter::processOperator(char op) {
 
 }
 
-
+*/
 //This function will increase the memory that is reserved by the interpreter.
 // If expansion <= 0, function will return without changing size of memory
 void Interpreter::expandMemory(int expansion) {
@@ -218,6 +218,55 @@ void Interpreter::openFile(string fileName) {
 		cerr << "Failed to open source file";
 		cerr << "Program will abort until proper error handling" << endl;
 		exit(-3);
+	}
+
+}
+
+void Interpreter::loadInInstructions() {
+	//int characterCounter; USE SIZE OF INSTRUCTION VECTOR
+	stack<int> loopOpenLoc;
+	while (!sourceFile.eof()) {
+		string line = "";
+		getline(sourceFile, line);
+
+		for (unsigned int i = 0; i < line.length(); i++) {
+			bool addToInstructions = true;
+			switch (line[i]) {
+				case '<':
+				case '>':
+				case '+':
+				case '-':
+				case ',':
+				case '.':
+					//pass;
+					break;
+				case '[':
+					loopOpenLoc.push(instructions.size());
+					break;
+				case ']':
+					if (loopOpenLoc.size() == 0) {
+						cerr << "Syntax error, loop closed without being opened, ignoring char" << endl;
+						addToInstructions = false;
+						break;
+					}
+					//int startingLoopLoc = loopOpenLoc.top();	
+					loopBounds[loopOpenLoc.top()] = instructions.size();
+					loopOpenLoc.pop();
+
+					break;
+				default:
+					addToInstructions = false;
+					break;
+			}
+
+			if (addToInstructions) {
+				instructions.push_back(line[i]);
+			}
+		}
+	}
+	if (loopOpenLoc.size() != 0) {
+		cerr << "Syntanx Error: Loop opened and not closed" << endl;
+		exit(-4);
 	}
 
 }
