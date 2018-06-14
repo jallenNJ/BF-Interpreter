@@ -7,7 +7,7 @@
 #include <vector>
 #include <map>
 #include <stack>
-
+//#include <cmath>
 
 using namespace std;
 
@@ -51,7 +51,7 @@ private:
 
 	void expandMemory(int);
 	
-	bool processOperator(char);
+	void processOperator(char);
 
 
 	//Debug function to output the entire contents of memory in a nicer view than the debugger
@@ -68,16 +68,16 @@ private:
 	}
 
 
-	ifstream sourceFile;
-	char* pgmMem;
-	char* pgmPtr;
-	unsigned int memSize;
-	unsigned int pgmCounter;
+	ifstream sourceFile; //The file containing the instructions
+	char* pgmMem;	//The contents of the program memory
+	char* pgmPtr;	//The pointer that the instructions modify
+	unsigned int memSize;	//The size of the program's memory
+	unsigned int pgmCounter; //The instruction being executed
 
 
-	vector<char> instructions;
-	stack<int> loopReturnAddress;
-	map<int, int> loopBounds;
+	vector<char> instructions; //All the instruction the program needs to run
+	stack<int> loopReturnAddress; //The location of the start of loops
+	map<int, int> loopBounds; //The map which associates the loops to their start and end
 
 };
 

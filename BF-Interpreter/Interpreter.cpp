@@ -22,19 +22,17 @@ void Interpreter::interpret() {
 //This function handles implementing finding out if a char is an operator, and if it is
 // implementing its correct function
 
-
 void Interpreter::processOperator(char op) {
 	switch (op) {
 	case '<':
 		if (pgmPtr <= pgmMem) { //If pointer moved further left than the start of the memory
-			cerr << "Pointer moved too far left, program will close until proper error handling";
-			exit(-2);
+			expandMemory(-EXPANSION_STEP);
 		}
 		
 		pgmPtr--;
 		break;
 	case '>':
-		if (pgmPtr >= (pgmMem + memSize)) { //If pointer moved further right than the current memory expansion
+		if (pgmPtr >= (pgmMem + memSize) - 1) { //If pointer moved further right than the current memory expansion
 			expandMemory(EXPANSION_STEP);
 		}
 		pgmPtr++;
@@ -105,33 +103,41 @@ void Interpreter::processOperator(char op) {
 
 
 //This function will increase the memory that is reserved by the interpreter.
-// If expansion <= 0, function will return without changing size of memory
+// If expansion < 0, function will add member before the old "Zero" point
 void Interpreter::expandMemory(int expansion) {
-	if (expansion < 1) {
-		cerr << "Invalid pass to expandMemory, value was " << expansion;
-		cerr << "\n Function will abort" << endl;
+	if (expansion == 0) {
 		return;
 	}
+	int offset = 0;
+	if (expansion < 0) {
+		expansion = abs(expansion);
+		offset = expansion;
+		
+	}
+
 	//Create a new array of the correct size
 	char* expandedArr = new char[memSize + expansion];
 
-	//Copy over the values
-	for (unsigned int i = 0; i < memSize; i++) {
-		expandedArr[i] = pgmMem[i];
+	for (int i = 0; i < offset; i++) { //If negative expansion, zero out values
+		expandedArr[i] = 0;
 	}
-	//Zero out the rest of the array
-	for (unsigned int i = memSize; i < memSize + expansion; i++) {
+	//Copy over the values
+	for (unsigned int i = offset; i < memSize+offset ; i++) { //Copy over  the values to new array
+		expandedArr[i] = pgmMem[i-offset];
+	}
+	//Zero out the rest of the array (postive expansion)
+	for (unsigned int i = memSize + offset; i < memSize + expansion ; i++) {
 		expandedArr[i] = 0;
 	}
 
 	//Find the offset between the pointers
-	int offset = pgmPtr - pgmMem;
-
+	int ptrOffset = pgmPtr - pgmMem;
+	ptrOffset += offset;
 	//Delete the old array and move pointer to the new array
 	delete[] pgmMem;
 	pgmMem = expandedArr;
 	//Move the pointer to the correct offset
-	pgmPtr = pgmMem + offset;
+	pgmPtr = pgmMem + ptrOffset;
 	//Update size of memory
 	memSize += expansion;
 	expandedArr = NULL;
