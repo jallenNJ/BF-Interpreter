@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	Interpreter bfInterp(argv[1]);
-	//bfInterp.interpret();
+	bfInterp.interpret();
 
 
 	return 0;

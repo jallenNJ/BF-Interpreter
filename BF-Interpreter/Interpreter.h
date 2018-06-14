@@ -29,11 +29,7 @@ public:
 			pgmMem[i] = 0;
 		}
 
-	//	skipLoop = false;
-	//	openBracketCounter = 0;
-	//	closeBracketCounter = 0;
-//		inLoop = false;
-//		doLoop = false;
+		pgmCounter = 0;
 
 		loadInInstructions();
 	}
@@ -76,6 +72,7 @@ private:
 	char* pgmMem;
 	char* pgmPtr;
 	unsigned int memSize;
+	unsigned int pgmCounter;
 
 
 	vector<char> instructions;

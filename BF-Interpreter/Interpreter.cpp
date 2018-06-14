@@ -7,84 +7,24 @@ using namespace std;
 
 // Entry point to the Interpreter, this function reads the entire file
 //	and processes each character by itself.
-/*void Interpreter::interpret() {
+void Interpreter::interpret() {
 
-	//vector<char> loopOps; //Stores all operations in the current loop
-	vector<vector<char>>allLoops;
-	while (!sourceFile.eof()) {
-		//Read in the current line
-		string line = "";
-		getline(sourceFile, line);
-
-		if (inLoop.size() == 0) { //Reset loop operations if not in a loop
-			allLoops.clear();
-		}
-
-		//Process every char on the line
-		for (unsigned int i = 0; i < line.length(); i++) {
-			if (skipLoop) {
-				if (line[i] == '[') {
-					openBracketCounter++;
-				}
-				else if (line[i] == ']') {
-					closeBracketCounter++;
-				}
-
-				if (openBracketCounter == closeBracketCounter) {
-					skipLoop = false;
-					openBracketCounter = 0;
-					closeBracketCounter = 0;
-				}
-				continue;
-			}
-			bool result = processOperator(line[i] );
-			if (!result) { //If not valid, skip past it
-				continue;
-			}
-
-
-			if (inLoop.size() != 0 || doLoop.size() != 0) { //If in a loop record the operation
-				if (allLoops.size() < inLoop.size()) {
-					vector<char>* temp = new vector<char>;
-					allLoops.push_back(*temp);
-					temp = NULL;
-				}
-				//loopOps.push_back(line[i]);
-				for (int j = 0; j < allLoops.size(); j++) {
-					allLoops[j].push_back(line[i]);
-				}
-			}
-
-			while (doLoop.size() != 0) { //If the loop is proc'd process all operations
-				vector<char> loopOps = allLoops[allLoops.size() - 1];
-				for (unsigned int j = 0; j < loopOps.size(); j++) {
-					processOperator(loopOps[j]);
-				}
-			}
-			if (inLoop.size() == 0) { //If loop ended, clear opps
-				if (allLoops.size() != 0) {
-					allLoops.pop_back();
-				}
-				
-			}
-			
-		}
-
-
+	for (pgmCounter = 0; pgmCounter < instructions.size(); pgmCounter++) {
+		processOperator(instructions[pgmCounter]);
 	}
 
 	//Memory dump
 	debugMemOutput();
 
 }
-*/
+
 
 //This function handles implementing finding out if a char is an operator, and if it is
 // implementing its correct function
 
 //RETURNS true if input was a valid operator
 //		false if the operator was not valid
-/*bool Interpreter::processOperator(char op) {
+bool Interpreter::processOperator(char op) {
 	bool validOperator = true;
 	switch (op) {
 	case '<':
@@ -125,43 +65,35 @@ using namespace std;
 		*pgmPtr = input;
 		break;
 	case '[':
-		if (doLoop.size() != 0 ) {
-			break;
-		}
+
 		if (*pgmPtr == 0) {
-			openBracketCounter++;
-			skipLoop = true;
-			validOperator = false;
+			map<int, int>::iterator st;
+			st = loopBounds.find(pgmCounter);
+			if (st == loopBounds.end()) {
+				cerr << "End of current loop not found" << endl;
+				exit(-6);
+			}
+			pgmCounter = st->second;
+			//Logic for skipping loop
 			break;
 		}
-		inLoop.push(new bool(true));
+		loopReturnAddress.push(pgmCounter);
 
 		break;
 	case']':
-		if (inLoop.size() == 0) {
-			cerr << "Syntax error: Loop ended without being started";
-			cerr << "\n Will ignore character" << endl;
-			break;
+		if (loopReturnAddress.size() == 0) {
+			cerr << "Loop return address is zero when ']' encounter" << endl;
+			exit(-8);
 		}
 
 		if (*pgmPtr == 0) { //Loop ends
-			if (doLoop.size() == 0) {
-				cerr << "Loop ended without being started" << endl;
-				break;
-			}
-			inLoop.pop();
-			doLoop.pop();
-			
-		
+			loopReturnAddress.pop();
 		}
-		else { //Run all loop operations
-			if (doLoop.size() != 0) {
-				break;
-			}
-			doLoop.push(new bool(true));
+		else { 
+			//START LOOP
+			pgmCounter = loopReturnAddress.top();
+			//loopReturnAddress.pop();
 		}
-
-
 		break;
 	default:// Invalid symbol is ignored
 		validOperator = false;
@@ -174,7 +106,7 @@ using namespace std;
 
 }
 
-*/
+
 //This function will increase the memory that is reserved by the interpreter.
 // If expansion <= 0, function will return without changing size of memory
 void Interpreter::expandMemory(int expansion) {
