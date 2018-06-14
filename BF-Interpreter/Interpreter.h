@@ -5,6 +5,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
+#include <stack>
 
 
 using namespace std;
@@ -27,9 +29,9 @@ public:
 			pgmMem[i] = 0;
 		}
 
-		inLoop = false;
-		doLoop = false;
+		pgmCounter = 0;
 
+		loadInInstructions();
 	}
 
 	~Interpreter() {
@@ -44,6 +46,8 @@ public:
 
 private: 
 	void openFile(string);
+
+	void loadInInstructions();
 
 	void expandMemory(int);
 	
@@ -68,8 +72,12 @@ private:
 	char* pgmMem;
 	char* pgmPtr;
 	unsigned int memSize;
-	bool inLoop;
-	bool doLoop;
+	unsigned int pgmCounter;
+
+
+	vector<char> instructions;
+	stack<int> loopReturnAddress;
+	map<int, int> loopBounds;
 
 };
 

@@ -9,39 +9,8 @@ using namespace std;
 //	and processes each character by itself.
 void Interpreter::interpret() {
 
-	vector<char> loopOps; //Stores all operations in the current loop
-	while (!sourceFile.eof()) {
-		//Read in the current line
-		string line = "";
-		getline(sourceFile, line);
-
-		if (!inLoop) { //Reset loop operations if not in a loop
-			loopOps.clear();
-		}
-
-		//Process every char on the line
-		for (unsigned int i = 0; i < line.length(); i++) {
-			bool result = processOperator(line[i] );
-			if (!result) { //If not valid, skip past it
-				continue;
-			}
-			if (inLoop || doLoop) { //If in a loop record the operation
-				loopOps.push_back(line[i]);
-			}
-
-			while (doLoop) { //If the loop is proc'd process all operations
-
-				for (unsigned int j = 0; j < loopOps.size(); j++) {
-					processOperator(loopOps[j]);
-				}
-			}
-			if (!inLoop) { //If loop ended, clear opps
-				loopOps.clear();
-			}
-			
-		}
-
-
+	for (pgmCounter = 0; pgmCounter < instructions.size(); pgmCounter++) {
+		processOperator(instructions[pgmCounter]);
 	}
 
 	//Memory dump
@@ -96,27 +65,35 @@ bool Interpreter::processOperator(char op) {
 		*pgmPtr = input;
 		break;
 	case '[':
-		inLoop = true;
+
+		if (*pgmPtr == 0) {
+			map<int, int>::iterator st;
+			st = loopBounds.find(pgmCounter);
+			if (st == loopBounds.end()) {
+				cerr << "End of current loop not found" << endl;
+				exit(-6);
+			}
+			pgmCounter = st->second;
+			//Logic for skipping loop
+			break;
+		}
+		loopReturnAddress.push(pgmCounter);
 
 		break;
 	case']':
-		if (inLoop = false) {
-			cerr << "Syntax error: Loop ended without being started";
-			cerr << "\n Will ignore character" << endl;
-			break;
+		if (loopReturnAddress.size() == 0) {
+			cerr << "Loop return address is zero when ']' encounter" << endl;
+			exit(-8);
 		}
 
 		if (*pgmPtr == 0) { //Loop ends
-			inLoop = false;
-			doLoop = false;
-			
-			
+			loopReturnAddress.pop();
 		}
-		else { //Run all loop operations
-			doLoop = true;
+		else { 
+			//START LOOP
+			pgmCounter = loopReturnAddress.top();
+			//loopReturnAddress.pop();
 		}
-
-
 		break;
 	default:// Invalid symbol is ignored
 		validOperator = false;
@@ -173,6 +150,55 @@ void Interpreter::openFile(string fileName) {
 		cerr << "Failed to open source file";
 		cerr << "Program will abort until proper error handling" << endl;
 		exit(-3);
+	}
+
+}
+
+void Interpreter::loadInInstructions() {
+	//int characterCounter; USE SIZE OF INSTRUCTION VECTOR
+	stack<int> loopOpenLoc;
+	while (!sourceFile.eof()) {
+		string line = "";
+		getline(sourceFile, line);
+
+		for (unsigned int i = 0; i < line.length(); i++) {
+			bool addToInstructions = true;
+			switch (line[i]) {
+				case '<':
+				case '>':
+				case '+':
+				case '-':
+				case ',':
+				case '.':
+					//pass;
+					break;
+				case '[':
+					loopOpenLoc.push(instructions.size());
+					break;
+				case ']':
+					if (loopOpenLoc.size() == 0) {
+						cerr << "Syntax error, loop closed without being opened, ignoring char" << endl;
+						addToInstructions = false;
+						break;
+					}
+					//int startingLoopLoc = loopOpenLoc.top();	
+					loopBounds[loopOpenLoc.top()] = instructions.size();
+					loopOpenLoc.pop();
+
+					break;
+				default:
+					addToInstructions = false;
+					break;
+			}
+
+			if (addToInstructions) {
+				instructions.push_back(line[i]);
+			}
+		}
+	}
+	if (loopOpenLoc.size() != 0) {
+		cerr << "Syntanx Error: Loop opened and not closed" << endl;
+		exit(-4);
 	}
 
 }
