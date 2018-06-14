@@ -22,7 +22,7 @@ Comments are made by any non-reserved character
 
 
 ## This Interpreter
-###General Information
+### General Information
 The current build of this interperter takes in a bf language file as a commandline argument, and does a two pass interpretation of it. Where pass I discards all non-valid operators, and assocaites the square brackets to each other. Pass II then executes the program in run time. 
 
 
