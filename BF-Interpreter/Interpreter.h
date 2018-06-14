@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stack>
 
 
 using namespace std;
@@ -27,8 +28,11 @@ public:
 			pgmMem[i] = 0;
 		}
 
-		inLoop = false;
-		doLoop = false;
+		skipLoop = false;
+		openBracketCounter = 0;
+		closeBracketCounter = 0;
+//		inLoop = false;
+//		doLoop = false;
 
 	}
 
@@ -68,8 +72,12 @@ private:
 	char* pgmMem;
 	char* pgmPtr;
 	unsigned int memSize;
-	bool inLoop;
-	bool doLoop;
+	stack<bool> inLoop;
+	stack<bool> doLoop;
+	bool skipLoop;
+	int openBracketCounter;
+	int closeBracketCounter;
+	//stack<vector<char>*> allLoops;
 
 };
 

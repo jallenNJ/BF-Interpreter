@@ -9,34 +9,61 @@ using namespace std;
 //	and processes each character by itself.
 void Interpreter::interpret() {
 
-	vector<char> loopOps; //Stores all operations in the current loop
+	//vector<char> loopOps; //Stores all operations in the current loop
+	vector<vector<char>>allLoops;
 	while (!sourceFile.eof()) {
 		//Read in the current line
 		string line = "";
 		getline(sourceFile, line);
 
-		if (!inLoop) { //Reset loop operations if not in a loop
-			loopOps.clear();
+		if (inLoop.size() == 0) { //Reset loop operations if not in a loop
+			allLoops.clear();
 		}
 
 		//Process every char on the line
 		for (unsigned int i = 0; i < line.length(); i++) {
+			if (skipLoop) {
+				if (line[i] == '[') {
+					openBracketCounter++;
+				}
+				else if (line[i] == ']') {
+					closeBracketCounter++;
+				}
+
+				if (openBracketCounter == closeBracketCounter) {
+					skipLoop = false;
+				}
+				continue;
+			}
 			bool result = processOperator(line[i] );
 			if (!result) { //If not valid, skip past it
 				continue;
 			}
-			if (inLoop || doLoop) { //If in a loop record the operation
-				loopOps.push_back(line[i]);
+
+
+			if (inLoop.size() != 0 || doLoop.size() != 0) { //If in a loop record the operation
+				if (allLoops.size() < inLoop.size()) {
+					vector<char>* temp = new vector<char>;
+					allLoops.push_back(*temp);
+					temp = NULL;
+				}
+				//loopOps.push_back(line[i]);
+				for (int j = 0; j < allLoops.size(); j++) {
+					allLoops[j].push_back(line[i]);
+				}
 			}
 
-			while (doLoop) { //If the loop is proc'd process all operations
-
+			while (doLoop.size() != 0) { //If the loop is proc'd process all operations
+				vector<char> loopOps = allLoops[allLoops.size() - 1];
 				for (unsigned int j = 0; j < loopOps.size(); j++) {
 					processOperator(loopOps[j]);
 				}
 			}
-			if (!inLoop) { //If loop ended, clear opps
-				loopOps.clear();
+			if (inLoop.size() == 0) { //If loop ended, clear opps
+				if (allLoops.size() != 0) {
+					allLoops.pop_back();
+				}
+				
 			}
 			
 		}
@@ -96,24 +123,36 @@ bool Interpreter::processOperator(char op) {
 		*pgmPtr = input;
 		break;
 	case '[':
-		inLoop = true;
+		if (doLoop.size() != 0 ) {
+			break;
+		}
+		if (*pgmPtr == 0) {
+			openBracketCounter++;
+			skipLoop = true;
+			validOperator = false;
+			break;
+		}
+		inLoop.push(new bool(true));
 
 		break;
 	case']':
-		if (inLoop = false) {
+		if (inLoop.size() == 0) {
 			cerr << "Syntax error: Loop ended without being started";
 			cerr << "\n Will ignore character" << endl;
 			break;
 		}
 
 		if (*pgmPtr == 0) { //Loop ends
-			inLoop = false;
-			doLoop = false;
+			inLoop.pop();
+			doLoop.pop();
 			
 			
 		}
 		else { //Run all loop operations
-			doLoop = true;
+			if (doLoop.size() != 0) {
+				break;
+			}
+			doLoop.push(new bool(true));
 		}
 
 
