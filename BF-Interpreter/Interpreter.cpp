@@ -32,6 +32,8 @@ void Interpreter::interpret() {
 
 				if (openBracketCounter == closeBracketCounter) {
 					skipLoop = false;
+					openBracketCounter = 0;
+					closeBracketCounter = 0;
 				}
 				continue;
 			}
@@ -143,10 +145,14 @@ bool Interpreter::processOperator(char op) {
 		}
 
 		if (*pgmPtr == 0) { //Loop ends
+			if (doLoop.size() == 0) {
+				cerr << "Loop ended without being started" << endl;
+				break;
+			}
 			inLoop.pop();
 			doLoop.pop();
 			
-			
+		
 		}
 		else { //Run all loop operations
 			if (doLoop.size() != 0) {
